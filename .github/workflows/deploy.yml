@@ -34,8 +34,7 @@ jobs:
           REMOTE_HOST: ${{ secrets.EC2_HOST }}
           REMOTE_USER: ${{ secrets.EC2_USERNAME }}
           TARGET: /var/www/nextjs-prod
-          SOURCE: ".next/,public/,package.json,package-lock.json,next.config.js"
-          EXCLUDE: "/node_modules/,/.git/"
+          EXCLUDE: "/node_modules/, /.git/, /.github/, /.*"
 
       - name: Run Post-Deploy Commands (Production)
         uses: appleboy/ssh-action@v1.0.3
@@ -75,8 +74,7 @@ jobs:
           REMOTE_HOST: ${{ secrets.EC2_HOST }}
           REMOTE_USER: ${{ secrets.EC2_USERNAME }}
           TARGET: /var/www/nextjs-dev
-          SOURCE: ".next/,public/,package.json,package-lock.json,next.config.js"
-          EXCLUDE: "/node_modules/,/.git/"
+          EXCLUDE: "/node_modules/, /.git/, /.github/, /.*"
 
       - name: Run Post-Deploy Commands (Development)
         uses: appleboy/ssh-action@v1.0.3
