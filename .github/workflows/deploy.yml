@@ -28,13 +28,15 @@ jobs:
         run: npm run build
 
       - name: Deploy to EC2 (Production)
-        uses: easingthemes/ssh-deploy@v5.0.0
+        uses: appleboy/scp-action@v0.1.7
         with:
-          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-          REMOTE_HOST: ${{ secrets.EC2_HOST }}
-          REMOTE_USER: ${{ secrets.EC2_USERNAME }}
-          TARGET: /var/www/nextjs-prod
-          EXCLUDE: "/node_modules/, /.git/, /.github/, /.*"
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: ".next,public,package.json,package-lock.json,next.config.js"
+          target: /var/www/nextjs-prod
+          strip_components: 0
+          rm: false
 
       - name: Run Post-Deploy Commands (Production)
         uses: appleboy/ssh-action@v1.0.3
@@ -68,13 +70,15 @@ jobs:
         run: npm run build
 
       - name: Deploy to EC2 (Development)
-        uses: easingthemes/ssh-deploy@v5.0.0
+        uses: appleboy/scp-action@v0.1.7
         with:
-          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-          REMOTE_HOST: ${{ secrets.EC2_HOST }}
-          REMOTE_USER: ${{ secrets.EC2_USERNAME }}
-          TARGET: /var/www/nextjs-dev
-          EXCLUDE: "/node_modules/, /.git/, /.github/, /.*"
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: ".next,public,package.json,package-lock.json,next.config.js"
+          target: /var/www/nextjs-dev
+          strip_components: 0
+          rm: false
 
       - name: Run Post-Deploy Commands (Development)
         uses: appleboy/ssh-action@v1.0.3
