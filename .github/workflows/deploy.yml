@@ -1,5 +1,9 @@
-- name: Test SSH Connection
-  run: |
-    ssh -o StrictHostKeyChecking=no ubuntu@13.53.193.195 "echo '✅ SSH Connected Successfully!'"
-  env:
-    SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+- name: Test SSH connection
+  uses: appleboy/ssh-action@v1.0.3
+  with:
+    host: ${{ secrets.EC2_HOST }}
+    username: ${{ secrets.EC2_USERNAME }}
+    key: ${{ secrets.EC2_SSH_KEY }}
+    script: |
+      echo "✅ SSH connection successful!"
+      hostname
