@@ -1,8 +1,5 @@
 name: Deploy Next.js to EC2 (Prod & Dev)
 
-# ------------------------------------------------------------
-# Trigger: runs whenever you push to 'main' or 'dev' branches
-# ------------------------------------------------------------
 on:
   push:
     branches:
@@ -10,9 +7,6 @@ on:
       - dev
 
 jobs:
-  # ============================================================
-  # PRODUCTION DEPLOYMENT (main branch)
-  # ============================================================
   deploy-prod:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
@@ -33,9 +27,6 @@ jobs:
       - name: Build Application
         run: npm run build
 
-      # ------------------------------
-      # Deploy build files to EC2
-      # ------------------------------
       - name: Deploy to EC2 (Production)
         uses: easingthemes/ssh-deploy@v5.0.0
         with:
@@ -43,12 +34,9 @@ jobs:
           REMOTE_HOST: ${{ secrets.EC2_HOST }}
           REMOTE_USER: ${{ secrets.EC2_USERNAME }}
           TARGET: /var/www/nextjs-prod
-          SOURCE: ".next public package.json package-lock.json next.config.js"
-          EXCLUDE: "/node_modules/ /.git/"
+          SOURCE: ".next/,public/,package.json,package-lock.json,next.config.js"
+          EXCLUDE: "/node_modules/,/.git/"
 
-      # ------------------------------
-      # Run post-deploy commands on EC2
-      # ------------------------------
       - name: Run Post-Deploy Commands (Production)
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -56,18 +44,10 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # Navigate to app directory
             cd /var/www/nextjs-prod
-
-            # Install production dependencies
             npm install --production
+            pm2 restart nextjs-app-prod || pm2 start npm --name "nextjs-app-prod" -- start
 
-            # Restart the production app using PM2
-            pm2 startOrRestart "npm start" --name "nextjs-app-prod"
-
-  # ============================================================
-  # DEVELOPMENT DEPLOYMENT (dev branch)
-  # ============================================================
   deploy-dev:
     if: github.ref == 'refs/heads/dev'
     runs-on: ubuntu-latest
@@ -88,9 +68,6 @@ jobs:
       - name: Build Application
         run: npm run build
 
-      # ------------------------------
-      # Deploy build files to EC2
-      # ------------------------------
       - name: Deploy to EC2 (Development)
         uses: easingthemes/ssh-deploy@v5.0.0
         with:
@@ -98,12 +75,9 @@ jobs:
           REMOTE_HOST: ${{ secrets.EC2_HOST }}
           REMOTE_USER: ${{ secrets.EC2_USERNAME }}
           TARGET: /var/www/nextjs-dev
-          SOURCE: ".next public package.json package-lock.json next.config.js"
-          EXCLUDE: "/node_modules/ /.git/"
+          SOURCE: ".next/,public/,package.json,package-lock.json,next.config.js"
+          EXCLUDE: "/node_modules/,/.git/"
 
-      # ------------------------------
-      # Run post-deploy commands on EC2
-      # ------------------------------
       - name: Run Post-Deploy Commands (Development)
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -111,11 +85,6 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # Navigate to dev app directory
             cd /var/www/nextjs-dev
-
-            # Install production dependencies
             npm install --production
-
-            # Restart the dev app on port 3001
-            pm2 startOrRestart "npm start -- -p 3001" --name "nextjs-app-dev"
+            pm2 restart nextjs-app-dev || pm2 start npm --name "nextjs-app-dev" -- start -- -p 3001
